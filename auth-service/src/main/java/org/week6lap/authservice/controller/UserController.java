@@ -5,17 +5,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.week6lap.authservice.dto.UserRecord;
-import org.week6lap.authservice.dto.UserResponse;
+import org.week6lap.authservice.dto.user.UserRecord;
+import org.week6lap.authservice.dto.user.UserResponse;
 import org.week6lap.authservice.service.UserService;
+import org.week6lap.authservice.util.ResponseHelper;
 
 import java.util.List;
 
+@Slf4j
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Tag(name = "User Management", description = "Operations related to user accounts")
 public class UserController {
@@ -30,9 +32,9 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "User created successfully"),
             @ApiResponse(responseCode = "400", description = "Validation failed")
     })
-    public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserRecord userRecord) {
+    public ResponseEntity<?> createUser(@RequestBody @Valid UserRecord userRecord) {
         UserResponse created = userService.createUser(userRecord);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseHelper.success("User created successfully", created);
     }
 
     /**
@@ -43,9 +45,9 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "User found"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
         UserResponse user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
+        return ResponseHelper.success("User retrieved successfully", user);
     }
 
     /**
@@ -55,9 +57,9 @@ public class UserController {
     @Operation(summary = "Fetch all users", responses = {
             @ApiResponse(responseCode = "200", description = "Users listed")
     })
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
+    public ResponseEntity<?> getAllUsers() {
         List<UserResponse> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        return ResponseHelper.success("All users retrieved", users);
     }
 
     /**
@@ -68,12 +70,12 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "User updated successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<UserResponse> updateUser(
+    public ResponseEntity<?> updateUser(
             @PathVariable Long id,
             @RequestBody @Valid UserRecord userRecord
     ) {
         UserResponse updated = userService.updateUser(id, userRecord);
-        return ResponseEntity.ok(updated);
+        return ResponseHelper.success("User updated successfully", updated);
     }
 
     /**
@@ -84,8 +86,8 @@ public class UserController {
             @ApiResponse(responseCode = "204", description = "User deleted successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        return ResponseHelper.success("User deleted successfully", null);
     }
 }
