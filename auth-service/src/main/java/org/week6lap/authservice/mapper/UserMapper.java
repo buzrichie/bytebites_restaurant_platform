@@ -1,8 +1,8 @@
 package org.week6lap.authservice.mapper;
 
 import org.mapstruct.*;
-import org.week6lap.authservice.dto.UserRecord;
-import org.week6lap.authservice.dto.UserResponse;
+import org.week6lap.authservice.dto.user.UserRecord;
+import org.week6lap.authservice.dto.user.UserResponse;
 import org.week6lap.authservice.model.User;
 
 @Mapper
