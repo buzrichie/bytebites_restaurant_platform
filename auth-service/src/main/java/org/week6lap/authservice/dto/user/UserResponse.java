@@ -1,4 +1,4 @@
-package org.week6lap.authservice.dto;
+package org.week6lap.authservice.dto.user;
 
 import org.week6lap.authservice.enums.UserRole;
 
