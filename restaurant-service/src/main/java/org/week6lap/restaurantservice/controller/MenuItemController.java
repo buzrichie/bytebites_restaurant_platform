@@ -33,10 +33,10 @@ public class MenuItemController {
     })
     public ResponseEntity<?> createMenuItem(
             @PathVariable Long restaurantId,
-            @RequestHeader("X-USER-ID") Long ownerId,
+            @RequestHeader("X-USER-ID") String ownerId,
             @Valid @RequestBody MenuItemRecord record
     ) {
-        var created = menuItemService.createMenuItem(restaurantId, record, ownerId);
+        var created = menuItemService.createMenuItem(restaurantId, record, Long.valueOf(ownerId));
         return ResponseHelper.success("Menu item created successfully", created);
     }
 
@@ -81,9 +81,9 @@ public class MenuItemController {
     })
     public ResponseEntity<?> deleteMenuItem(
             @PathVariable Long itemId,
-            @RequestHeader("X-USER-ID") Long ownerId
+            @RequestHeader("X-USER-ID") String ownerId
     ) {
-        menuItemService.deleteMenuItem(itemId, ownerId);
+        menuItemService.deleteMenuItem(itemId, Long.valueOf(ownerId));
         return ResponseHelper.success("Menu item deleted", null);
     }
 }
