@@ -42,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
-        String token = jwtTokenProvider.generateToken(authentication.getName(),  Map.of("email", authentication.getName(), "role",  authentication.getAuthorities().iterator().next().getAuthority()));
+        String token = jwtTokenProvider.generateToken(authentication.getName(),  Map.of("email", authentication.getName(), "roles",  authentication.getAuthorities().iterator().next().getAuthority()));
 
         return new AuthResponseDTO(
                 token,
