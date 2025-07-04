@@ -29,7 +29,7 @@ public class UserContextAuthenticationFilter extends OncePerRequestFilter {
 
         if (userId != null && rolesHeader != null) {
             List<SimpleGrantedAuthority> authorities = Arrays.stream(rolesHeader.split(","))
-                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.trim()))
+                    .map(role -> new SimpleGrantedAuthority(role.trim()))
                     .collect(Collectors.toList());
 
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
