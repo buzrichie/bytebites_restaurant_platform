@@ -1,4 +1,4 @@
-package org.week6lap.restaurantservice.security.filter;
+package org.week6lap.orderservice.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -29,7 +29,7 @@ public class UserContextAuthenticationFilter extends OncePerRequestFilter {
 
         if (userId != null && rolesHeader != null) {
             List<SimpleGrantedAuthority> authorities = Arrays.stream(rolesHeader.split(","))
-                    .map(role -> new SimpleGrantedAuthority( role.trim()))
+                    .map(role -> new SimpleGrantedAuthority(role.trim()))
                     .collect(Collectors.toList());
 
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(

@@ -31,7 +31,7 @@ public class RestaurantController {
             @ApiResponse(responseCode = "403", description = "Forbidden - duplicate name or not allowed")
     })
     public ResponseEntity<?> createRestaurant(
-            @RequestHeader("X-USER-ID") Long ownerId,
+            @RequestHeader("X-USER-ID") String ownerId,
             @Valid @RequestBody RestaurantRecord record
     ) {
         var created = restaurantService.createRestaurant(record);
@@ -74,7 +74,7 @@ public class RestaurantController {
     })
     public ResponseEntity<?> updateRestaurant(
             @PathVariable Long id,
-            @RequestHeader("X-USER-ID") Long ownerId,
+            @RequestHeader("X-USER-ID") String ownerId,
             @Valid @RequestBody RestaurantRecord record
     ) {
         var updated = restaurantService.updateRestaurant(id, record);
@@ -92,9 +92,9 @@ public class RestaurantController {
     })
     public ResponseEntity<?> deleteRestaurant(
             @PathVariable Long id,
-            @RequestHeader("X-USER-ID") Long ownerId
+            @RequestHeader("X-USER-ID") String ownerId
     ) {
-        restaurantService.deleteRestaurant(id, ownerId);
+        restaurantService.deleteRestaurant(id, Long.valueOf(ownerId));
         return ResponseHelper.success("Restaurant deleted", null);
     }
 }

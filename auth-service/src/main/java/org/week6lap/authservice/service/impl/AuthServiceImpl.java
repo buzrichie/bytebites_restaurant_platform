@@ -18,6 +18,7 @@ import org.week6lap.authservice.model.User;
 import org.week6lap.authservice.repository.UserRepository;
 import org.week6lap.authservice.security.JwtTokenProvider;
 import org.week6lap.authservice.service.AuthService;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -41,7 +42,7 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
-        String token = jwtTokenProvider.generateToken(authentication.getName());
+        String token = jwtTokenProvider.generateToken(authentication.getName(),  Map.of("email", authentication.getName(), "roles",  authentication.getAuthorities().iterator().next().getAuthority()));
 
         return new AuthResponseDTO(
                 token,

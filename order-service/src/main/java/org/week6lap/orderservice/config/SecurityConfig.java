@@ -1,4 +1,4 @@
-package org.week6lap.restaurantservice.config;
+package org.week6lap.orderservice.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +9,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.week6lap.restaurantservice.security.filter.InternalRequestValidatorFilter;
-import org.week6lap.restaurantservice.security.filter.UserContextAuthenticationFilter;
+import org.week6lap.orderservice.security.filter.InternalRequestValidatorFilter;
+import org.week6lap.orderservice.security.filter.UserContextAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -26,17 +26,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/swagger/**", "/v3/api-docs/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/v1/restaurants/**",
-                                "/api/v1/menu-items/restaurant/**"
-                        ).hasAnyRole("CUSTOMER", "RESTAURANT_OWNER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/restaurants").hasRole("RESTAURANT_OWNER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/restaurants/**").hasRole("RESTAURANT_OWNER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/restaurants/**").hasRole("RESTAURANT_OWNER")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/menu-items/restaurant/**").hasRole("RESTAURANT_OWNER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/menu-items/**").hasRole("RESTAURANT_OWNER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/menu-items/**").hasRole("RESTAURANT_OWNER")
-                        .anyRequest().authenticated()
+                            .requestMatchers(HttpMethod.POST, "/api/v1/orders").hasRole("CUSTOMER")
+                            .requestMatchers(HttpMethod.GET, "/api/v1/orders/my").hasRole("CUSTOMER")
+                            .requestMatchers(HttpMethod.GET, "/api/v1/orders/{id}").authenticated()
+                            .requestMatchers(HttpMethod.GET, "/api/v1/orders/restaurant/**").hasRole("RESTAURANT_OWNER")
+                            .anyRequest().authenticated()
                 )
                 .addFilterBefore(internalRequestValidatorFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(userContextAuthenticationFilter, InternalRequestValidatorFilter.class);
@@ -44,4 +38,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
