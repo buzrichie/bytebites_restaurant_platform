@@ -5,9 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.week6lap.orderservice.dto.OrderRequest;
 import org.week6lap.orderservice.dto.OrderResponse;
+import org.week6lap.orderservice.event.OrderPlacedEvent;
+import org.week6lap.orderservice.event.publisher.OrderEventPublisher;
 import org.week6lap.orderservice.exception.ResourceNotFoundException;
 import org.week6lap.orderservice.mapper.OrderMapper;
 import org.week6lap.orderservice.model.Order;
+import org.week6lap.orderservice.model.OrderItem;
 import org.week6lap.orderservice.repository.OrderRepository;
 import org.week6lap.orderservice.service.OrderService;
 
@@ -23,6 +26,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
+    private final OrderEventPublisher orderEventPublisher;
 
     /**
      * Places a new food order.
@@ -32,6 +36,18 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponse placeOrder(String customerId, OrderRequest orderRequest) {
         Order order = orderMapper.toEntity(orderRequest, customerId);
         Order saved = orderRepository.save(order);
+        // Build and emit event
+        OrderPlacedEvent event = OrderPlacedEvent.builder()
+                .orderId(Long.valueOf(saved.getId().toString()))
+                .restaurantId(order.getRestaurantId())
+                .userId(Long.valueOf(order.getCustomerId()))
+                .status(String.valueOf(order.getStatus()))
+                .build();
+
+        System.out.println(event);
+
+        orderEventPublisher.publishOrderPlacedEvent(event);
+
         return orderMapper.toResponse(saved);
     }
 
