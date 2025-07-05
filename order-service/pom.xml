@@ -125,6 +125,11 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- RabbitMQ Messaging -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
