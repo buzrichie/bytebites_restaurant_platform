@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.week6lap.restaurantservice.dto.restaurant.RestaurantRecord;
 import org.week6lap.restaurantservice.dto.restaurant.RestaurantResponse;
@@ -30,6 +31,7 @@ public class RestaurantController {
             @ApiResponse(responseCode = "201", description = "Restaurant created"),
             @ApiResponse(responseCode = "403", description = "Forbidden - duplicate name or not allowed")
     })
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")
     public ResponseEntity<?> createRestaurant(
             @RequestHeader("X-USER-ID") String ownerId,
             @Valid @RequestBody RestaurantRecord record
@@ -45,6 +47,7 @@ public class RestaurantController {
     @Operation(summary = "List all restaurants", responses = {
             @ApiResponse(responseCode = "200", description = "Restaurants listed")
     })
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'RESTAURANT_OWNER', 'ADMIN')")
     public ResponseEntity<?> getAllRestaurants() {
         List<RestaurantResponse> restaurants = restaurantService.getAllRestaurants();
         return ResponseHelper.success("All restaurants fetched", restaurants);
@@ -58,6 +61,7 @@ public class RestaurantController {
             @ApiResponse(responseCode = "200", description = "Restaurant found"),
             @ApiResponse(responseCode = "404", description = "Restaurant not found")
     })
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'RESTAURANT_OWNER', 'ADMIN')")
     public ResponseEntity<?> getRestaurantById(@PathVariable Long id) {
         var restaurant = restaurantService.getRestaurantById(id);
         return ResponseHelper.success("Restaurant fetched", restaurant);
@@ -72,6 +76,7 @@ public class RestaurantController {
             @ApiResponse(responseCode = "403", description = "Forbidden - not owner"),
             @ApiResponse(responseCode = "404", description = "Restaurant not found")
     })
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")
     public ResponseEntity<?> updateRestaurant(
             @PathVariable Long id,
             @RequestHeader("X-USER-ID") String ownerId,
@@ -90,6 +95,7 @@ public class RestaurantController {
             @ApiResponse(responseCode = "403", description = "Forbidden - not owner"),
             @ApiResponse(responseCode = "404", description = "Restaurant not found")
     })
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")
     public ResponseEntity<?> deleteRestaurant(
             @PathVariable Long id,
             @RequestHeader("X-USER-ID") String ownerId

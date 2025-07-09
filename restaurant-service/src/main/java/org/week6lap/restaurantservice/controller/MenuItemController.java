@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.week6lap.restaurantservice.dto.menu.MenuItemRecord;
 import org.week6lap.restaurantservice.dto.menu.MenuItemResponse;
@@ -31,6 +32,7 @@ public class MenuItemController {
             @ApiResponse(responseCode = "403", description = "Forbidden - not the owner"),
             @ApiResponse(responseCode = "404", description = "Restaurant not found")
     })
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")
     public ResponseEntity<?> createMenuItem(
             @PathVariable Long restaurantId,
             @RequestHeader("X-USER-ID") String ownerId,
@@ -47,6 +49,7 @@ public class MenuItemController {
     @Operation(summary = "Get all menu items for a restaurant", responses = {
             @ApiResponse(responseCode = "200", description = "List returned")
     })
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'RESTAURANT_OWNER', 'ADMIN')")
     public ResponseEntity<?> getByRestaurant(@PathVariable Long restaurantId) {
         List<MenuItemResponse> items = menuItemService.getMenuItemsByRestaurant(restaurantId);
         return ResponseHelper.success("Menu items loaded", items);
@@ -61,6 +64,7 @@ public class MenuItemController {
             @ApiResponse(responseCode = "403", description = "Forbidden - not the owner"),
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")
     public ResponseEntity<?> updateMenuItem(
             @PathVariable Long itemId,
             @RequestHeader("X-USER-ID") Long ownerId,
@@ -79,6 +83,7 @@ public class MenuItemController {
             @ApiResponse(responseCode = "403", description = "Forbidden - not the owner"),
             @ApiResponse(responseCode = "404", description = "Item not found")
     })
+    @PreAuthorize("hasAnyRole('RESTAURANT_OWNER', 'ADMIN')")
     public ResponseEntity<?> deleteMenuItem(
             @PathVariable Long itemId,
             @RequestHeader("X-USER-ID") String ownerId
