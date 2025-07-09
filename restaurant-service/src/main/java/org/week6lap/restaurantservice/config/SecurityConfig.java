@@ -30,12 +30,12 @@ public class SecurityConfig {
                                 "/api/v1/restaurants/**",
                                 "/api/v1/menu-items/restaurant/**"
                         ).hasAnyRole("CUSTOMER", "RESTAURANT_OWNER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/restaurants").hasRole("RESTAURANT_OWNER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/restaurants/**").hasRole("RESTAURANT_OWNER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/restaurants/**").hasRole("RESTAURANT_OWNER")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/menu-items/restaurant/**").hasRole("RESTAURANT_OWNER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/menu-items/**").hasRole("RESTAURANT_OWNER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/menu-items/**").hasRole("RESTAURANT_OWNER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/restaurants").hasAnyRole("RESTAURANT_OWNER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/restaurants/**").hasAnyRole("RESTAURANT_OWNER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/restaurants/**").hasAnyRole("RESTAURANT_OWNER", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/menu-items/restaurant/**").hasAnyRole("RESTAURANT_OWNER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/menu-items/**").hasAnyRole("RESTAURANT_OWNER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/menu-items/**").hasAnyRole("RESTAURANT_OWNER", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(internalRequestValidatorFilter, UsernamePasswordAuthenticationFilter.class)
