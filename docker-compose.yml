@@ -1,21 +1,150 @@
 services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bytebitesdb
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - bytebites-net
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"     # AMQP port (backend communication)
-      - "15672:15672"   # RabbitMQ Management UI
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "status"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    networks:
+      - bytebites-net
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - bytebites-net
+
+  config-server:
+    build:
+      context: ./config-server
+    image: bytebites/config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - rabbitmq
+      - discovery-server
+    networks:
+      - bytebites-net
+
+  discovery-server:
+    build:
+      context: ./discovery-server
+    image: bytebites/discovery-server
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+#    depends_on:
+#      - config-server
+    networks:
+      - bytebites-net
+
+  auth-service:
+    build:
+      context: ./auth-service
+    image: bytebites/auth-service
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bytebitesdb
+      - SPRING_DATASOURCE_USERNAME=byteuser
+      - SPRING_DATASOURCE_PASSWORD=bytepass
+    depends_on:
+      - mysql
+      - discovery-server
+      - config-server
+    networks:
+      - bytebites-net
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+    image: bytebites/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8887:8887"
+    depends_on:
+      - auth-service
+      - discovery-server
+    networks:
+      - bytebites-net
+
+  restaurant-service:
+    build:
+      context: ./restaurant-service
+    image: bytebites/restaurant-service
+    container_name: restaurant-service
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bytebitesdb
+      - SPRING_DATASOURCE_USERNAME=byteuser
+      - SPRING_DATASOURCE_PASSWORD=bytepass
+    depends_on:
+      - mysql
+      - discovery-server
+      - config-server
+      - rabbitmq
+    networks:
+      - bytebites-net
+
+  order-service:
+    build:
+      context: ./order-service
+    image: bytebites/order-service
+    container_name: order-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/bytebitesdb
+      - SPRING_DATASOURCE_USERNAME=byteuser
+      - SPRING_DATASOURCE_PASSWORD=bytepass
+    depends_on:
+      - mysql
+      - restaurant-service
+      - rabbitmq
+    networks:
+      - bytebites-net
+
+  notification-service:
+    build:
+      context: ./notification-service
+    image: bytebites/notification-service
+    container_name: notification-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - rabbitmq
     networks:
       - bytebites-net
 
 networks:
   bytebites-net:
     driver: bridge
+
+volumes:
+  mysql-data:
