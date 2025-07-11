@@ -22,6 +22,7 @@ import org.week6lap.restaurantservice.repository.RestaurantRepository;
 
 import java.math.BigDecimal;
 
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -57,11 +58,11 @@ public class MenuItemServiceIntegrationTest {
     private String internalSecret;
 
     private Long restaurantId;
-    private Long ownerId = 1L;
+    private final Long ownerId = 1L;
+    private Long itemId;
 
     @BeforeEach
     void setUp() {
-        // Clean and seed the database
         menuItemRepository.deleteAll();
         restaurantRepository.deleteAll();
 
@@ -82,7 +83,7 @@ public class MenuItemServiceIntegrationTest {
                 .restaurant(restaurant)
                 .build();
 
-        menuItemRepository.save(item);
+        this.itemId = menuItemRepository.save(item).getId();
     }
 
     @Test
@@ -94,6 +95,7 @@ public class MenuItemServiceIntegrationTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Menu items loaded"))
+                .andExpect(jsonPath("$.data", hasSize(greaterThanOrEqualTo(1))))
                 .andExpect(jsonPath("$.data[0].name").value("Fufu & Goat Soup"));
     }
 
@@ -117,5 +119,38 @@ public class MenuItemServiceIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Menu item created successfully"))
                 .andExpect(jsonPath("$.data.name").value("Kelewele"));
+    }
+
+    @Test
+    void shouldUpdateMenuItem() throws Exception {
+        String updatePayload = """
+            {
+                "name": "Fufu Updated",
+                "description": "Updated description",
+                "price": 40.00
+            }
+        """;
+
+        mockMvc.perform(put("/api/v1/menu-items/" + itemId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updatePayload)
+                        .header("X-USER-ID", ownerId.toString())
+                        .header("X-USER-ROLE", "ROLE_RESTAURANT_OWNER")
+                        .header("X-Internal-Auth", internalSecret)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.name").value("Fufu Updated"))
+                .andExpect(jsonPath("$.data.price").value(40.00));
+    }
+
+    @Test
+    void shouldDeleteMenuItem() throws Exception {
+        mockMvc.perform(delete("/api/v1/menu-items/" + itemId)
+                        .header("X-USER-ID", ownerId.toString())
+                        .header("X-USER-ROLE", "ROLE_RESTAURANT_OWNER")
+                        .header("X-Internal-Auth", internalSecret)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Menu item deleted"));
     }
 }
