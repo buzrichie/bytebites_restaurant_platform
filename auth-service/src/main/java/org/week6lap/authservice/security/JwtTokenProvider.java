@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -49,6 +50,29 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public Claims getAllClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> getRolesFromToken(String token) {
+        Object rawRoles = getAllClaimsFromToken(token).get("roles");
+
+        if (rawRoles instanceof List<?>) {
+            return ((List<?>) rawRoles).stream()
+                    .map(Object::toString)
+                    .toList();
+        } else if (rawRoles instanceof String) {
+            return List.of(((String) rawRoles).split(","));
+        } else {
+            return List.of(); // fallback
+        }
     }
 
     public boolean validateToken(String token) {

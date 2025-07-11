@@ -52,6 +52,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     .header("X-USER-ID", userId)
                     .header("X-USER-ROLE", roles)
                     .header("X-Internal-Auth", internalSecret) // For internal validation
+                    .header("Authorization", authHeader) // For internal validation
                     .build();
 
             return chain.filter(exchange.mutate().request(modifiedRequest).build());

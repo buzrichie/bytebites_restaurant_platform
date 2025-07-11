@@ -26,10 +26,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/swagger/**", "/v3/api-docs/**").hasRole("ADMIN")
-                            .requestMatchers(HttpMethod.POST, "/api/v1/orders").hasRole("CUSTOMER")
-                            .requestMatchers(HttpMethod.GET, "/api/v1/orders/my").hasRole("CUSTOMER")
+                            .requestMatchers(HttpMethod.POST, "/api/v1/orders").hasAnyRole("ADMIN","CUSTOMER")
+                            .requestMatchers(HttpMethod.GET, "/api/v1/orders/my").hasAnyRole("ADMIN","CUSTOMER")
                             .requestMatchers(HttpMethod.GET, "/api/v1/orders/{id}").authenticated()
-                            .requestMatchers(HttpMethod.GET, "/api/v1/orders/restaurant/**").hasRole("RESTAURANT_OWNER")
+                            .requestMatchers(HttpMethod.GET, "/api/v1/orders/restaurant/**").hasAnyRole("RESTAURANT_OWNER", "ADMIN")
                             .anyRequest().authenticated()
                 )
                 .addFilterBefore(internalRequestValidatorFilter, UsernamePasswordAuthenticationFilter.class)

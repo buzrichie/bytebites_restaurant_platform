@@ -2,6 +2,7 @@ package org.week6lap.restaurantservice.dto.restaurant;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.week6lap.restaurantservice.dto.menu.MenuItemRecord;
 
@@ -19,6 +20,10 @@ public record RestaurantRecord(
         String address,
 
         @NotBlank(message = "Phone number is required")
+        @Pattern(
+                regexp = "^\\+?[0-9]{10,15}$",
+                message = "Phone number must be valid and contain 10 to 15 digits"
+        )
         String phone,
 
         @NotNull(message = "Owner ID is required")
